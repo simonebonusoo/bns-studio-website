@@ -1,5 +1,5 @@
 import { Fragment, useEffect, useState } from "react"
-import { AnimatePresence, motion } from "framer-motion"
+import { AnimatePresence, m } from "framer-motion"
 
 import { Container } from "./Container"
 import { Logo } from "./Logo"
@@ -101,15 +101,13 @@ export function Navbar() {
             <div className="absolute inset-x-0 bottom-0 h-px bg-white/12" />
             <div className="absolute inset-x-0 top-0 h-px bg-white/8" />
 
-            <motion.div
-              className="absolute -top-10 left-0 h-24 w-[55%] rotate-[-8deg]"
+            <div
+              className="nav-shimmer absolute -top-10 left-0 h-24 w-[55%] rotate-[-8deg]"
               style={{
                 background:
                   "linear-gradient(90deg, rgba(227,245,3,0) 0%, rgba(227,245,3,0.10) 50%, rgba(227,245,3,0) 100%)",
                 filter: "blur(10px)",
               }}
-              animate={{ x: ["-20%", "120%"] }}
-              transition={{ duration: 4.6, ease: "linear", repeat: Infinity }}
             />
           </div>
 
@@ -151,7 +149,7 @@ export function Navbar() {
                     {/* Centered nav links */}
                     <div className="pointer-events-none absolute inset-y-0 left-1/2 z-10 flex w-[min(58vw,760px)] -translate-x-1/2 items-center justify-center">
                       <div className="pointer-events-auto w-full">
-                        <motion.nav
+                        <m.nav
                           initial={{ opacity: 0, y: -8 }}
                           animate={{ opacity: 1, y: 0 }}
                           transition={desktopNavTransition}
@@ -166,7 +164,7 @@ export function Navbar() {
                               external={isExternal(item)}
                             />
                           ))}
-                        </motion.nav>
+                        </m.nav>
                       </div>
                     </div>
 
@@ -188,7 +186,7 @@ export function Navbar() {
       <AnimatePresence>
         {menuOpen ? (
           <Fragment>
-            <motion.div
+            <m.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
@@ -197,7 +195,7 @@ export function Navbar() {
               className="fixed inset-0 z-40 bg-black/55 backdrop-blur-sm md:hidden"
             />
 
-            <motion.aside
+            <m.aside
               initial={{ opacity: 0, x: -18 }}
               animate={{ opacity: 1, x: 0 }}
               exit={{ opacity: 0, x: -18 }}
@@ -230,7 +228,7 @@ export function Navbar() {
                   ))}
                 </div>
               </div>
-            </motion.aside>
+            </m.aside>
           </Fragment>
         ) : null}
       </AnimatePresence>

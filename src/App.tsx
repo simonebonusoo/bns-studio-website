@@ -1,5 +1,5 @@
-import { useEffect, useRef } from "react"
-import Lenis from "lenis"
+import { Suspense, lazy, useEffect } from "react"
+import { LazyMotion, domAnimation } from "framer-motion"
 import { Routes, Route, useLocation } from "react-router-dom"
 
 import { Navbar } from "./components/Navbar"
@@ -19,12 +19,19 @@ import { ShopCTA } from "./sections/ShopCTA"
 import { Contact } from "./sections/Contact"
 import { Footer } from "./sections/Footer"
 
-import { PrivacyPolicyPage } from "./pages/PrivacyPolicyPage"
+// Pagina secondaria: caricata on-demand per alleggerire il bundle iniziale.
+const PrivacyPolicyPage = lazy(() =>
+  import("./pages/PrivacyPolicyPage").then((m) => ({ default: m.PrivacyPolicyPage })),
+)
 
-declare global {
-  interface Window {
-    __lenis?: Lenis
-  }
+// Offset (px) per compensare l'header sticky durante lo scroll ancorato.
+const SCROLL_OFFSET = 80
+
+function prefersReducedMotion() {
+  return (
+    typeof window !== "undefined" &&
+    window.matchMedia("(prefers-reduced-motion: reduce)").matches
+  )
 }
 
 function Home() {
@@ -45,10 +52,6 @@ function Home() {
 
 export default function App() {
   const location = useLocation()
-  const lenisRef = useRef<Lenis | null>(null)
-  const rafRef = useRef<number>(0)
-
-  const OFFSET = -80
 
   // Scroll restoration manuale.
   useEffect(() => {
@@ -60,20 +63,10 @@ export default function App() {
     }
   }, [])
 
-  // Smooth scroll con Lenis + gestione anchor interni.
+  // Scroll fluido nativo per gli anchor interni (senza librerie di smooth scroll).
   useEffect(() => {
-    const lenis = new Lenis({ duration: 1.1, smoothWheel: true } as any)
-    lenisRef.current = lenis
-    window.__lenis = lenis
-
-    const loop = (time: number) => {
-      lenis.raf(time)
-      rafRef.current = requestAnimationFrame(loop)
-    }
-    rafRef.current = requestAnimationFrame(loop)
-
     const onClick = (e: MouseEvent) => {
-      if (e.defaultPrevented || (e as any).button !== 0) return
+      if (e.defaultPrevented || e.button !== 0) return
       if (e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return
 
       const target = e.target as HTMLElement | null
@@ -85,6 +78,7 @@ export default function App() {
       const isLocalHash = href.startsWith("#")
       if (!isRootHash && !isLocalHash) return
 
+      // Su pagine diverse dalla home lascia la navigazione nativa del browser.
       if (isRootHash && window.location.pathname !== "/") return
 
       const id = isRootHash ? href.slice(2) : href.slice(1)
@@ -94,46 +88,47 @@ export default function App() {
       if (!el) return
 
       e.preventDefault()
-      lenis.scrollTo(el, { offset: OFFSET, duration: 1.15 })
+      const top = el.getBoundingClientRect().top + window.scrollY - SCROLL_OFFSET
+      window.scrollTo({
+        top,
+        behavior: prefersReducedMotion() ? "auto" : "smooth",
+      })
       history.pushState(null, "", `/#${id}`)
     }
 
     document.addEventListener("click", onClick)
-
-    return () => {
-      document.removeEventListener("click", onClick)
-      cancelAnimationFrame(rafRef.current)
-      lenis.destroy()
-      lenisRef.current = null
-      delete window.__lenis
-    }
+    return () => document.removeEventListener("click", onClick)
   }, [])
 
   // Riporta in cima al cambio pagina.
   useEffect(() => {
-    const lenis = lenisRef.current
-    if (lenis) {
-      lenis.scrollTo(0, { immediate: true })
-    } else {
-      window.scrollTo({ top: 0, left: 0, behavior: "auto" })
-    }
+    window.scrollTo({ top: 0, left: 0, behavior: "auto" })
   }, [location.pathname])
 
   return (
-    <div className="min-h-screen bg-ink text-white">
-      <Backdrop />
-      <Noise />
-      <Navbar />
+    <LazyMotion features={domAnimation} strict>
+      <div className="min-h-screen bg-ink text-white">
+        <Backdrop />
+        <Noise />
+        <Navbar />
 
-      <Routes>
-        <Route path="/" element={<Home />} />
-        <Route path="/privacy" element={<PrivacyPolicyPage />} />
-      </Routes>
+        <Routes>
+          <Route path="/" element={<Home />} />
+          <Route
+            path="/privacy"
+            element={
+              <Suspense fallback={<div className="min-h-screen" />}>
+                <PrivacyPolicyPage />
+              </Suspense>
+            }
+          />
+        </Routes>
 
-      <Footer />
+        <Footer />
 
-      <BackToTop />
-      <CookieBanner />
-    </div>
+        <BackToTop />
+        <CookieBanner />
+      </div>
+    </LazyMotion>
   )
 }

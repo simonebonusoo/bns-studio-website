@@ -162,7 +162,7 @@ html, body {
   color: var(--primary);
 }
 
-/* Logo PNG libero: nessun background/border/padding imposto da altri stili */
+/* Logo libero: nessun background/border/padding imposto da altri stili */
 a[href="#top"] img,
 a[href="/#top"] img {
   background: transparent !important;
@@ -170,4 +170,133 @@ a[href="/#top"] img {
   padding: 0 !important;
   border-radius: 0 !important;
   box-shadow: none !important;
+}
+
+/* =========================
+   Smooth scroll nativo
+   ========================= */
+html {
+  scroll-behavior: smooth;
+}
+
+/* =========================
+   Reveal on-scroll (IntersectionObserver + CSS)
+   Anima solo opacity, transform e (una volta) filter.
+   ========================= */
+[data-reveal] {
+  opacity: 0;
+  transform: translateY(18px);
+  filter: blur(8px);
+  transition:
+    opacity 0.65s cubic-bezier(0.16, 1, 0.3, 1),
+    transform 0.65s cubic-bezier(0.16, 1, 0.3, 1),
+    filter 0.65s cubic-bezier(0.16, 1, 0.3, 1);
+  will-change: opacity, transform;
+}
+
+[data-reveal][data-visible="true"] {
+  opacity: 1;
+  transform: none;
+  filter: blur(0);
+  will-change: auto;
+}
+
+/* =========================
+   Marquee brand (CSS, solo transform)
+   ========================= */
+.marquee-track {
+  animation: marquee 40s linear infinite;
+  will-change: transform;
+}
+
+@keyframes marquee {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(-50%);
+  }
+}
+
+/* =========================
+   Navbar shimmer (CSS, solo transform)
+   ========================= */
+.nav-shimmer {
+  transform: translateX(-20%) rotate(-8deg);
+  animation: nav-shimmer 4.6s linear infinite;
+  will-change: transform;
+}
+
+@keyframes nav-shimmer {
+  from {
+    transform: translateX(-20%) rotate(-8deg);
+  }
+  to {
+    transform: translateX(120%) rotate(-8deg);
+  }
+}
+
+/* =========================
+   Button scanline glow (CSS, solo su hover)
+   ========================= */
+.btn-scanline {
+  background: linear-gradient(
+    to top,
+    rgba(227, 245, 3, 0) 40%,
+    rgba(227, 245, 3, 0.65) 50%,
+    rgba(227, 245, 3, 0) 60%
+  );
+  transform: translateY(100%) scale(1.25);
+}
+
+.group:hover .btn-scanline {
+  animation: btn-scan 1.05s linear infinite alternate;
+}
+
+@keyframes btn-scan {
+  from {
+    transform: translateY(100%) scale(1.25);
+  }
+  to {
+    transform: translateY(-100%) scale(1.25);
+  }
+}
+
+/* =========================
+   Riduzione blur pesanti su mobile (perf)
+   ========================= */
+@media (max-width: 767px) {
+  .glass {
+    backdrop-filter: blur(6px);
+  }
+}
+
+/* =========================
+   Rispetto di prefers-reduced-motion
+   ========================= */
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+    scroll-behavior: auto !important;
+  }
+
+  [data-reveal] {
+    opacity: 1;
+    transform: none;
+    filter: none;
+  }
+
+  .marquee-track,
+  .nav-shimmer,
+  .group:hover .btn-scanline {
+    animation: none !important;
+  }
 }

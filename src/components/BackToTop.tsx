@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react"
-import { motion, AnimatePresence } from "framer-motion"
+import { m, AnimatePresence } from "framer-motion"
 
 export function BackToTop() {
   const [visible, setVisible] = useState(false)
@@ -13,7 +13,7 @@ export function BackToTop() {
   return (
     <AnimatePresence>
       {visible && (
-        <motion.button
+        <m.button
           type="button"
           aria-label="Torna in alto"
           initial={{ opacity: 0, y: 12, scale: 0.9 }}
@@ -33,7 +33,7 @@ export function BackToTop() {
           ].join(" ")}
         >
           ↑
-        </motion.button>
+        </m.button>
       )}
     </AnimatePresence>
   )
