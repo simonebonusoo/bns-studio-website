@@ -1,5 +1,3 @@
-import { motion } from "framer-motion"
-
 import { Container } from "../components/Container"
 
 const BRAND_COUNT = 11
@@ -19,28 +17,27 @@ export function TrustedBrands() {
           <span className="h-px w-10 bg-gradient-to-l from-transparent to-[#e3f503]/60" />
         </div>
 
-        {/* Marquee pulito, senza card contenitiva */}
+        {/* Marquee pulito, senza card contenitiva (animazione CSS, solo transform) */}
         <div className="relative mt-6 overflow-hidden px-2">
           <div className="pointer-events-none absolute inset-y-0 left-0 z-10 w-16 bg-gradient-to-r from-[#0b0b0c] to-transparent md:w-24" />
           <div className="pointer-events-none absolute inset-y-0 right-0 z-10 w-16 bg-gradient-to-l from-[#0b0b0c] to-transparent md:w-24" />
 
-          <motion.div
-            className="inline-flex min-w-max items-center gap-8 py-6 md:gap-12"
-            animate={{ x: ["0%", "-50%"] }}
-            transition={{ duration: 40, ease: "linear", repeat: Infinity }}
-            style={{ willChange: "transform" }}
-          >
+          <div className="marquee-track inline-flex min-w-max items-center gap-8 py-6 md:gap-12">
             {row.map((n, i) => (
               <div key={`${n}-${i}`} className="flex h-12 shrink-0 items-center justify-center md:h-14">
                 <img
-                  src={`/brands/${n}.png`}
+                  src={`/brands/${n}.webp`}
                   alt={`Brand ${n}`}
+                  width={300}
+                  height={120}
                   draggable={false}
+                  loading="lazy"
+                  decoding="async"
                   className="h-9 w-auto object-contain opacity-55 grayscale transition duration-300 hover:opacity-100 hover:grayscale-0 md:h-11"
                 />
               </div>
             ))}
-          </motion.div>
+          </div>
         </div>
       </Container>
     </section>

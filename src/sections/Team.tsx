@@ -20,7 +20,7 @@ const members: Member[] = [
     badge: "Founder",
     meta: "Founder & Art Director",
     href: CONTACTS.instagram,
-    imageUrl: "/team/1.png",
+    imageUrl: "/team/1.webp",
   },
   {
     name: "Andrea Brandolini",
@@ -29,7 +29,7 @@ const members: Member[] = [
     badge: "Lead Team",
     meta: "Full-Stack Developer",
     href: CONTACTS.instagram,
-    imageUrl: "/team/2.png",
+    imageUrl: "/team/2.webp",
   },
 ]
 
@@ -63,6 +63,10 @@ function MemberCard({ member }: { member: Member }) {
         <img
           src={member.imageUrl}
           alt={member.name}
+          width={900}
+          height={900}
+          loading="lazy"
+          decoding="async"
           className="absolute inset-0 h-full w-full object-cover grayscale transition duration-500 ease-out group-hover:scale-[1.03] group-hover:grayscale-0"
         />
 

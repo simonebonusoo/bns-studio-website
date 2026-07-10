@@ -22,7 +22,7 @@ export function PrivacyPolicyPage() {
           <h2>Dati raccolti</h2>
           <p>
             Raccogliamo solo i dati che ci fornisci volontariamente, ad esempio quando ci
-            contatti tramite il modulo o via email (nome, indirizzo email e contenuto del
+            contatti via email, WhatsApp o Instagram (nome, indirizzo email e contenuto del
             messaggio). Non vendiamo né cediamo i tuoi dati a terzi.
           </p>
 

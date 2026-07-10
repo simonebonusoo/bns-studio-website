@@ -59,6 +59,10 @@ const items = [
   icon: IconType
 }>
 
+function slugify(value: string) {
+  return value.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)/g, "")
+}
+
 function ServiceIcon({ icon: Icon, active }: { icon: IconType; active?: boolean }) {
   return (
     <div
@@ -88,13 +92,17 @@ function ServiceRow({
   onToggle: () => void
   delay?: number
 }) {
+  const panelId = `service-panel-${slugify(title)}`
+  const buttonId = `service-button-${slugify(title)}`
   return (
     <Reveal delay={delay}>
       <div className="border-t border-white/10 first:border-t-0">
         <button
           type="button"
+          id={buttonId}
           onClick={onToggle}
           aria-expanded={isOpen}
+          aria-controls={panelId}
           className="group flex w-full items-start justify-between gap-6 py-7 text-left transition duration-300 md:py-8"
         >
           <div className="min-w-0">
@@ -103,6 +111,9 @@ function ServiceRow({
             </h3>
 
             <div
+              id={panelId}
+              role="region"
+              aria-labelledby={buttonId}
               className={`grid transition-[grid-template-rows,opacity,margin] duration-500 ease-out ${
                 isOpen ? "mt-5 grid-rows-[1fr] opacity-100" : "mt-0 grid-rows-[0fr] opacity-0"
               }`}

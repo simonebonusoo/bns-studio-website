@@ -28,7 +28,11 @@ export function CookieBanner() {
   }
 
   return (
-    <div className="fixed inset-x-0 bottom-0 z-[120] px-3 pb-3 sm:px-4 sm:pb-4">
+    <div
+      role="region"
+      aria-label="Avviso sui cookie"
+      className="fixed inset-x-0 bottom-0 z-[120] px-3 pb-3 sm:px-4 sm:pb-4"
+    >
       <div className="mx-auto flex max-w-4xl flex-col gap-3 rounded-2xl border border-black/10 bg-white px-4 py-4 text-black shadow-[0_12px_36px_rgba(0,0,0,0.16)] sm:flex-row sm:items-center sm:justify-between">
         <p className="text-sm leading-6 text-black/75">
           Questo sito usa cookie per migliorare l&apos;esperienza.{" "}

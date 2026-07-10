@@ -1,12 +1,13 @@
 import { PropsWithChildren, useEffect, useRef, useState } from "react"
 import clsx from "clsx"
-import { motion, useReducedMotion } from "framer-motion"
+
+type Variant = "primary" | "ghost"
 
 type Props = PropsWithChildren<{
   href?: string
-  onClick?: (e: any) => void
+  onClick?: (e: React.MouseEvent) => void
   type?: "button" | "submit" | "reset"
-  variant?: "primary" | "ghost" | "cart" | "profile"
+  variant?: Variant
   size?: "sm" | "md"
   className?: string
   disabled?: boolean
@@ -20,27 +21,20 @@ const CHARS = "!@#$%^&*():{};|,.<>/?"
 const CYCLES_PER_LETTER = 2
 const SHUFFLE_TIME = 40
 
-function resolveVariant(variant: Props["variant"]) {
-  if (variant === "ghost") return "profile"
-  if (variant === "primary") return "cart"
-  return variant || "cart"
-}
-
-export function getButtonClassName({
-  variant = "cart",
-  size = "md",
+function getButtonClassName({
+  variant,
+  size,
   className,
-  disabled = false,
+  disabled,
 }: {
-  variant?: "primary" | "ghost" | "cart" | "profile"
-  size?: "sm" | "md"
+  variant: Variant
+  size: "sm" | "md"
   className?: string
-  disabled?: boolean
+  disabled: boolean
 }) {
-  const resolvedVariant = resolveVariant(variant)
   const base =
     "group relative overflow-hidden inline-flex items-center justify-center gap-2 font-medium " +
-    "transition-all active:scale-[.98] select-none"
+    "transition active:scale-[.98] select-none"
 
   const sizeCls =
     size === "sm"
@@ -48,34 +42,15 @@ export function getButtonClassName({
       : "h-11 px-5 text-sm rounded-lg"
 
   const variantCls =
-    resolvedVariant === "cart"
+    variant === "primary"
       ? "bg-white text-black hover:bg-white/90 shadow-[0_10px_30px_rgba(0,0,0,0.35)]"
       : "bg-transparent text-white/80 border border-white/15 hover:border-white/30 hover:text-white"
 
-  const disabledCls = disabled ? "cursor-not-allowed opacity-60 hover:bg-inherit hover:border-inherit hover:text-inherit active:scale-100" : ""
+  const disabledCls = disabled
+    ? "cursor-not-allowed opacity-60 hover:bg-inherit hover:border-inherit hover:text-inherit active:scale-100"
+    : ""
 
   return clsx(base, sizeCls, variantCls, disabledCls, className)
-}
-
-export function getDangerButtonClassName({
-  size = "md",
-  className,
-  disabled = false,
-}: {
-  size?: "sm" | "md"
-  className?: string
-  disabled?: boolean
-}) {
-  return getButtonClassName({
-    variant: "profile",
-    size,
-    disabled,
-    className: clsx(
-      "danger-button !border-red-400/30 !text-red-100/95",
-      !disabled && "hover:!border-red-400/75 hover:!text-red-50 hover:!bg-red-500/14",
-      className,
-    ),
-  })
 }
 
 export function Button({
@@ -90,7 +65,6 @@ export function Button({
   text,
   icon,
 }: Props) {
-  const reduce = useReducedMotion()
   const intervalRef = useRef<number | null>(null)
 
   const targetText = text ?? (typeof children === "string" ? children : "")
@@ -107,8 +81,8 @@ export function Button({
   }
 
   const scramble = () => {
-    if (reduce) return
     if (!targetText) return
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return
 
     let pos = 0
     if (intervalRef.current) window.clearInterval(intervalRef.current)
@@ -130,35 +104,29 @@ export function Button({
   }
 
   useEffect(() => {
-    return () => stopScramble()
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+    return () => {
+      if (intervalRef.current) window.clearInterval(intervalRef.current)
+    }
   }, [])
 
-  const resolvedVariant = resolveVariant(variant)
-  const cls = getButtonClassName({ variant: resolvedVariant, size, className, disabled })
-  const isDanger = String(className || "").includes("danger-button")
+  const cls = getButtonClassName({ variant, size, className, disabled })
 
   const iconCls =
-    resolvedVariant === "cart"
+    variant === "primary"
       ? "text-black/80"
-      : clsx(
-          "text-white/80 transition-colors",
-          isDanger ? "group-hover:text-red-100" : "group-hover:text-[color:var(--brand)]",
-        )
+      : "text-white/80 transition-colors group-hover:text-[color:var(--brand)]"
 
   const labelCls =
     "absolute left-0 top-0 whitespace-pre transition-colors " +
-    (resolvedVariant === "cart"
+    (variant === "primary"
       ? "text-black"
-      : isDanger
-        ? "text-white/80 group-hover:text-red-100"
-        : "text-white/80 group-hover:text-[color:var(--brand)]")
+      : "text-white/80 group-hover:text-[color:var(--brand)]")
 
   const Inner = (
     <>
       <span
         className="relative z-10 inline-flex items-center gap-2"
-        style={{ ["--brand" as any]: BRAND } as any}
+        style={{ ["--brand" as string]: BRAND } as React.CSSProperties}
       >
         {icon ? <span className={iconCls}>{icon}</span> : null}
 
@@ -175,22 +143,11 @@ export function Button({
         )}
       </span>
 
-      {/* scanline glow (palette) */}
-      <motion.span
+      {/* scanline glow (CSS, solo su hover) */}
+      <span
         aria-hidden
-        initial={{ y: "100%" }}
-        animate={reduce ? { y: "100%" } : { y: "-100%" }}
-        transition={
-          reduce
-            ? {}
-            : { repeat: Infinity, repeatType: "mirror", duration: 1.05, ease: "linear" }
-        }
-        style={{ ["--brand" as any]: BRAND } as any}
-        className={
-          "absolute inset-0 z-0 scale-125 opacity-0 transition-opacity duration-300 " +
-          "bg-gradient-to-t from-[color:var(--brand)]/0 from-40% via-[color:var(--brand)]/65 to-[color:var(--brand)]/0 to-60% " +
-          "group-hover:opacity-100"
-        }
+        className="btn-scanline pointer-events-none absolute inset-0 z-0 opacity-0 transition-opacity duration-300 group-hover:opacity-100"
+        style={{ ["--brand" as string]: BRAND } as React.CSSProperties}
       />
 
       {/* depth */}
