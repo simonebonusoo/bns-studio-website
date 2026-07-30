@@ -96,7 +96,7 @@ export function Navbar() {
           {/* Liquid glass */}
           <div
             aria-hidden
-            className="pointer-events-none absolute inset-0 z-0 bg-black/30 backdrop-blur-2xl backdrop-saturate-125"
+            className="pointer-events-none absolute inset-0 z-0 bg-black/40 backdrop-blur-lg backdrop-saturate-125 [transform:translateZ(0)]"
           >
             <div className="absolute inset-x-0 bottom-0 h-px bg-white/12" />
             <div className="absolute inset-x-0 top-0 h-px bg-white/8" />

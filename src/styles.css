@@ -151,6 +151,33 @@ section {
   width: 100%;
 }
 
+/* Perf: non dipingere le sezioni fuori dallo schermo.
+   Escludo hero/nav (prima schermata) per evitare flash iniziali. */
+section:not(#top):not(#clienti) {
+  content-visibility: auto;
+  contain-intrinsic-size: auto 600px;
+}
+
+/* Perf: hint di composizione per gli overlay fissi a tutto schermo,
+   così restano su un layer GPU e non forzano repaint durante lo scroll. */
+.bg-grid,
+.pointer-events-none.fixed.inset-0 {
+  transform: translateZ(0);
+  backface-visibility: hidden;
+}
+
+/* Rispetta chi preferisce meno movimento: azzera animazioni pesanti. */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
 /* Overflow e altezza pagina (override della regola sopra html, body { height:100% }) */
 html, body {
   overflow-x: clip;   /* Niente scroll orizzontale senza interferire con sticky */

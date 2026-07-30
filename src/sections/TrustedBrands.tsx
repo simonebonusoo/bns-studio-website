@@ -33,9 +33,11 @@ export function TrustedBrands() {
             {row.map((n, i) => (
               <div key={`${n}-${i}`} className="flex h-12 shrink-0 items-center justify-center md:h-14">
                 <img
-                  src={`/brands/${n}.png`}
+                  src={`/brands/${n}.webp`}
                   alt={`Brand ${n}`}
                   draggable={false}
+                  loading="lazy"
+                  decoding="async"
                   className="h-9 w-auto object-contain opacity-55 grayscale transition duration-300 hover:opacity-100 hover:grayscale-0 md:h-11"
                 />
               </div>

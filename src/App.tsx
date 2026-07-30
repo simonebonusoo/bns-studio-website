@@ -1,4 +1,4 @@
-import { useEffect, useRef } from "react"
+import { useEffect, useRef, lazy, Suspense } from "react"
 import Lenis from "lenis"
 import { Routes, Route, useLocation } from "react-router-dom"
 
@@ -19,7 +19,9 @@ import { ShopCTA } from "./sections/ShopCTA"
 import { Contact } from "./sections/Contact"
 import { Footer } from "./sections/Footer"
 
-import { PrivacyPolicyPage } from "./pages/PrivacyPolicyPage"
+const PrivacyPolicyPage = lazy(() =>
+  import("./pages/PrivacyPolicyPage").then((m) => ({ default: m.PrivacyPolicyPage }))
+)
 
 declare global {
   interface Window {
@@ -62,7 +64,12 @@ export default function App() {
 
   // Smooth scroll con Lenis + gestione anchor interni.
   useEffect(() => {
-    const lenis = new Lenis({ duration: 1.1, smoothWheel: true } as any)
+    const lenis = new Lenis({
+      lerp: 0.12,
+      wheelMultiplier: 1,
+      smoothWheel: true,
+      syncTouch: false,
+    } as any)
     lenisRef.current = lenis
     window.__lenis = lenis
 
@@ -125,10 +132,12 @@ export default function App() {
       <Noise />
       <Navbar />
 
-      <Routes>
-        <Route path="/" element={<Home />} />
-        <Route path="/privacy" element={<PrivacyPolicyPage />} />
-      </Routes>
+      <Suspense fallback={null}>
+        <Routes>
+          <Route path="/" element={<Home />} />
+          <Route path="/privacy" element={<PrivacyPolicyPage />} />
+        </Routes>
+      </Suspense>
 
       <Footer />
 
