@@ -1,10 +1,9 @@
-import { motion } from "framer-motion"
 
 import { Container } from "../components/Container"
+import { VelocityMarquee } from "../components/motion"
 
 const BRAND_COUNT = 11
 const brands = Array.from({ length: BRAND_COUNT }, (_, i) => i + 1)
-const row = [...brands, ...brands]
 
 export function TrustedBrands() {
   return (
@@ -24,14 +23,11 @@ export function TrustedBrands() {
           <div className="pointer-events-none absolute inset-y-0 left-0 z-10 w-16 bg-gradient-to-r from-[#0b0b0c] to-transparent md:w-24" />
           <div className="pointer-events-none absolute inset-y-0 right-0 z-10 w-16 bg-gradient-to-l from-[#0b0b0c] to-transparent md:w-24" />
 
-          <motion.div
-            className="inline-flex min-w-max items-center gap-8 py-6 md:gap-12"
-            animate={{ x: ["0%", "-50%"] }}
-            transition={{ duration: 40, ease: "linear", repeat: Infinity }}
-            style={{ willChange: "transform" }}
-          >
-            {row.map((n, i) => (
-              <div key={`${n}-${i}`} className="flex h-12 shrink-0 items-center justify-center md:h-14">
+          {/* Marquee che accelera e cambia verso seguendo lo scroll */}
+          <VelocityMarquee className="flex w-max py-6">
+            <div className="flex shrink-0 items-center gap-8 pr-8 md:gap-12 md:pr-12">
+            {brands.map((n) => (
+              <div key={n} className="flex h-12 shrink-0 items-center justify-center md:h-14">
                 <img
                   src={`/brands/${n}.webp`}
                   alt={`Brand ${n}`}
@@ -42,7 +38,8 @@ export function TrustedBrands() {
                 />
               </div>
             ))}
-          </motion.div>
+            </div>
+          </VelocityMarquee>
         </div>
       </Container>
     </section>

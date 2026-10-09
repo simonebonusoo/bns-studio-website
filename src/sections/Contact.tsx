@@ -5,6 +5,7 @@ import { SiInstagram, SiWhatsapp } from "react-icons/si"
 import { Container } from "../components/Container"
 import { Reveal } from "../components/Reveal"
 import { CONTACTS } from "../lib/site"
+import { InteractiveCard } from "../components/motion"
 
 type Channel = {
   icon: IconType
@@ -45,7 +46,7 @@ function ChannelCol({ channel }: { channel: Channel }) {
   const { icon: Icon } = channel
   return (
     <div className="group flex h-full flex-col items-center px-4 pt-3 text-center md:px-8 lg:px-10">
-      <span className="text-white transition duration-300 group-hover:scale-105">
+      <span className="text-white transition duration-300 group-hover:scale-110 group-hover:-rotate-6 group-data-[active]/card:scale-110 group-data-[active]/card:-rotate-6">
         <Icon className="h-10 w-10" />
       </span>
 
@@ -86,7 +87,9 @@ export function Contact() {
         <div className="mt-12 grid gap-12 md:mt-24 md:grid-cols-3 md:gap-0 md:divide-x md:divide-white/10">
           {channels.map((channel, idx) => (
             <Reveal key={channel.label} delay={0.04 * idx}>
-              <ChannelCol channel={channel} />
+              <InteractiveCard className="group/card h-full rounded-[24px] py-6" radius={24} tilt={4}>
+                <ChannelCol channel={channel} />
+              </InteractiveCard>
             </Reveal>
           ))}
         </div>

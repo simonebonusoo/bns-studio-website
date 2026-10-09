@@ -2,6 +2,25 @@ import { useEffect, useMemo, useRef, useState } from "react"
 
 import { Container } from "../components/Container"
 import { Reveal } from "../components/Reveal"
+import { motion } from "framer-motion"
+import type { RefObject } from "react"
+import { useActive } from "../components/motion"
+
+function StatValue({ children }: { children: React.ReactNode }) {
+  const ref = useRef<HTMLDivElement>(null)
+  const { active } = useActive(ref as RefObject<HTMLElement>)
+  return (
+    <motion.div
+      ref={ref}
+      animate={{ color: active ? "#e3f503" : "#ffffff", scale: active ? 1.06 : 1 }}
+      transition={{ type: "spring", stiffness: 300, damping: 22 }}
+      className="cursor-default text-[2.9rem] font-semibold leading-none tracking-[-0.06em] text-white md:text-[4.4rem]"
+    >
+      {children}
+    </motion.div>
+  )
+}
+import { Parallax } from "../components/motion"
 
 const stats = [
   {
@@ -91,16 +110,18 @@ export function Stats() {
       <Container>
         <div className="grid grid-cols-2 gap-x-6 gap-y-10 md:grid-cols-2 xl:grid-cols-4 xl:gap-12">
           {stats.map((stat, idx) => (
-            <Reveal key={stat.label} delay={0.04 * idx}>
+            <Parallax key={stat.label} speed={idx % 2 ? 22 : 8}>
+            <Reveal delay={0.04 * idx}>
               <div className="text-center">
-                <div className="text-[2.9rem] font-semibold leading-none tracking-[-0.06em] text-white md:text-[4.4rem]">
+                <StatValue>
                   <CountUp value={stat.value} suffix={stat.suffix} start={isVisible} />
-                </div>
+                </StatValue>
                 <p className="mx-auto mt-3 max-w-[11rem] text-[0.95rem] leading-relaxed text-white/72 md:mt-4 md:max-w-[14rem] md:text-[1.05rem]">
                   {stat.label}
                 </p>
               </div>
             </Reveal>
+            </Parallax>
           ))}
         </div>
       </Container>

@@ -19,6 +19,10 @@ import { ShopCTA } from "./sections/ShopCTA"
 import { Contact } from "./sections/Contact"
 import { Footer } from "./sections/Footer"
 
+const MotionLabPage = lazy(() =>
+  import("./pages/MotionLab").then((m) => ({ default: m.MotionLabPage }))
+)
+
 const PrivacyPolicyPage = lazy(() =>
   import("./pages/PrivacyPolicyPage").then((m) => ({ default: m.PrivacyPolicyPage }))
 )
@@ -37,8 +41,11 @@ function Home() {
       <Process />
       <Studio />
       <Stats />
-      <Team />
-      <Services />
+      {/* Team resta agganciato e Servizi gli scorre sopra: il wrapper limita l'aggancio */}
+      <div id="team" className="relative scroll-mt-24">
+        <Team />
+        <Services />
+      </div>
       <Contact />
       <ShopCTA />
     </main>
@@ -136,6 +143,7 @@ export default function App() {
         <Routes>
           <Route path="/" element={<Home />} />
           <Route path="/privacy" element={<PrivacyPolicyPage />} />
+          <Route path="/motion-lab" element={<MotionLabPage />} />
         </Routes>
       </Suspense>
 
