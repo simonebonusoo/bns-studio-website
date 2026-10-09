@@ -94,10 +94,20 @@ export function VelocityMarquee({
   const smooth = useSpring(velocity, { damping: 50, stiffness: 400 })
   const factor = useTransform(smooth, [0, 1000], [0, 5], { clamp: false })
   const dir = useRef(-1)
+  const ref = useRef<HTMLDivElement>(null)
+  const visible = useRef(true)
+
+  useEffect(() => {
+    const el = ref.current
+    if (!el) return
+    const io = new IntersectionObserver(([e]) => (visible.current = e.isIntersecting))
+    io.observe(el)
+    return () => io.disconnect()
+  }, [])
 
   useAnimationFrame((_, delta) => {
-    if (reduce) return
-    let move = dir.current * baseSpeed * (delta / 1000)
+    if (reduce || !visible.current) return
+    let move = dir.current * baseSpeed * (Math.min(delta, 50) / 1000)
     const f = factor.get()
     if (f < 0) dir.current = 1
     else if (f > 0) dir.current = -1
@@ -108,7 +118,7 @@ export function VelocityMarquee({
   const x = useTransform(base, (v) => `${wrap(-50, 0, v)}%`)
 
   return (
-    <motion.div className={className} style={{ x, willChange: "transform" }}>
+    <motion.div ref={ref} className={className} style={{ x, willChange: "transform" }}>
       {children}
       {children}
     </motion.div>
@@ -207,20 +217,26 @@ export function InteractiveCard({
   const spring = { stiffness: 220, damping: 22, mass: 0.6 }
   const rx = useSpring(useTransform(py, [0, 1], [tilt, -tilt]), spring)
   const ry = useSpring(useTransform(px, [0, 1], [-tilt, tilt]), spring)
-  const gx = useTransform(px, (v) => `${v * 100}%`)
-  const gy = useTransform(py, (v) => `${v * 100}%`)
-  const background = useTransform(
-    [gx, gy] as any,
-    ([x, y]: string[]) => `radial-gradient(420px circle at ${x} ${y}, ${glow}, transparent 60%)`,
-  )
+  // Riflesso: un cerchio sfumato fisso che si sposta con transform (niente repaint del gradiente)
+  const size = useRef({ w: 1, h: 1 })
+  const gx = useTransform(px, (v) => v * size.current.w - 210)
+  const gy = useTransform(py, (v) => v * size.current.h - 210)
+  const rect = useRef<DOMRect | null>(null)
 
+  const onEnter = () => {
+    if (!ref.current) return
+    rect.current = ref.current.getBoundingClientRect()
+    size.current = { w: ref.current.offsetWidth, h: ref.current.offsetHeight }
+  }
   const onMove = (e: React.PointerEvent) => {
     if (!canHover || reduce) return
-    const r = ref.current!.getBoundingClientRect()
+    const r = rect.current
+    if (!r) return
     px.set((e.clientX - r.left) / r.width)
     py.set((e.clientY - r.top) / r.height)
   }
   const onLeave = () => {
+    rect.current = null
     px.set(0.5)
     py.set(0.5)
   }
@@ -230,6 +246,7 @@ export function InteractiveCard({
   return (
     <motion.div
       ref={ref}
+      onPointerEnter={onEnter}
       onPointerMove={onMove}
       onPointerLeave={onLeave}
       animate={{ y: active ? -6 : 0, scale: active ? 1.015 : 1 }}
@@ -241,11 +258,21 @@ export function InteractiveCard({
       {children}
       <motion.div
         aria-hidden
-        className="pointer-events-none absolute inset-0"
-        style={{ background, borderRadius: radius }}
+        className="pointer-events-none absolute inset-0 overflow-hidden"
+        style={{ borderRadius: radius }}
         animate={{ opacity: active ? 1 : 0 }}
         transition={{ duration: 0.4 }}
-      />
+      >
+        <motion.div
+          className="absolute left-0 top-0 h-[420px] w-[420px] rounded-full"
+          style={{
+            left: canHover ? 0 : "50%",
+            x: canHover ? gx : "-50%",
+            y: canHover ? gy : -110,
+            background: `radial-gradient(circle at center, ${glow}, transparent 60%)`,
+          }}
+        />
+      </motion.div>
     </motion.div>
   )
 }

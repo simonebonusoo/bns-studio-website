@@ -49,9 +49,9 @@ function Portrait({ member, index }: { member: Member; index: number }) {
   const reduce = useReducedMotion()
   const { active } = useActive(ref as RefObject<HTMLElement>)
   const { scrollYProgress } = useScroll({ target: ref, offset: ["start end", "start 35%"] })
-  const imgY = useTransform(scrollYProgress, [0, 1], ["18%", "0%"])
-  const clip = useTransform(scrollYProgress, [0, 1], [30, 0])
-  const clipPath = useTransform(clip, (c) => `inset(${c}% 0% 0% 0%)`)
+  // la persona sale dal basso dentro la cornice (solo transform + opacity)
+  const imgY = useTransform(scrollYProgress, [0, 1], ["22%", "0%"])
+  const imgOpacity = useTransform(scrollYProgress, [0, 0.6], [0, 1])
   const line = useTransform(scrollYProgress, [0.2, 0.8], [0, 1])
 
   return (
@@ -79,22 +79,35 @@ function Portrait({ member, index }: { member: Member; index: number }) {
       </div>
 
       {/* ritratto: sfondo sfumato, la persona "esce" dal basso */}
-      <motion.div
-        style={reduce ? undefined : { clipPath }}
-        className="relative mt-5 aspect-[4/5] overflow-hidden bg-gradient-to-b from-white/[0.07] to-white/[0.01]"
-      >
-        <motion.img
-          src={member.imageUrl}
-          alt={member.name}
-          width={800}
-          height={1000}
-          loading="lazy"
-          decoding="async"
-          style={reduce ? undefined : { y: imgY }}
-          animate={{ scale: active ? 1.04 : 1, filter: active ? "grayscale(0)" : "grayscale(1)" }}
-          transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
-          className="absolute inset-0 h-full w-full object-cover object-top"
-        />
+      <div className="relative mt-5 aspect-[4/5] overflow-hidden bg-gradient-to-b from-white/[0.07] to-white/[0.01]">
+        <motion.div className="absolute inset-0 will-change-transform" style={reduce ? undefined : { y: imgY, opacity: imgOpacity }}>
+          <motion.div
+            className="absolute inset-0"
+            animate={{ scale: active ? 1.04 : 1 }}
+            transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
+          >
+            <img
+              src={member.imageUrl}
+              alt={member.name}
+              width={800}
+              height={1000}
+              loading="lazy"
+              decoding="async"
+              className="absolute inset-0 h-full w-full object-cover object-top grayscale"
+            />
+            {/* livello a colori: appare solo con opacity */}
+            <motion.img
+              src={member.imageUrl}
+              alt=""
+              aria-hidden
+              loading="lazy"
+              decoding="async"
+              animate={{ opacity: active ? 1 : 0 }}
+              transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
+              className="absolute inset-0 h-full w-full object-cover object-top"
+            />
+          </motion.div>
+        </motion.div>
         <div className="pointer-events-none absolute inset-x-0 bottom-0 h-1/3 bg-gradient-to-t from-[#0b0b0c] to-transparent" />
 
         {/* freccia che appare in basso */}
@@ -107,7 +120,7 @@ function Portrait({ member, index }: { member: Member; index: number }) {
             <path d="M7 17 17 7M8 7h9v9" />
           </svg>
         </motion.span>
-      </motion.div>
+      </div>
       <span className="sr-only">Profilo {index + 1}</span>
     </a>
   )
@@ -167,7 +180,7 @@ export function Team() {
       className="scroll-mt-24 pt-6 pb-12 md:sticky md:pt-8 md:pb-24"
       style={reduce ? undefined : { top: stickyTop }}
     >
-      <motion.div style={reduce ? undefined : { scale, opacity, transformOrigin: "center top" }}>
+      <motion.div className="will-change-transform" style={reduce ? undefined : { scale, opacity, transformOrigin: "center top" }}>
         <Container>
           <div className="flex items-end justify-between gap-6">
             <Reveal>

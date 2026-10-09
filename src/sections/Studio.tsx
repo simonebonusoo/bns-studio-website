@@ -54,8 +54,7 @@ export function Studio() {
   const reduce = useReducedMotion()
   const { scrollYProgress } = useScroll({ target: photoRef, offset: ["start end", "end start"] })
   const photoY = useTransform(scrollYProgress, [0, 1], ["-8%", "8%"])
-  const photoGray = useTransform(scrollYProgress, [0.3, 0.55], [1, 0])
-  const photoFilter = useTransform(photoGray, (g) => `grayscale(${g})`)
+  const photoColor = useTransform(scrollYProgress, [0.3, 0.55], [0, 1])
 
   return (
     <section id="studio" className="relative scroll-mt-24 overflow-hidden py-12 md:py-20">
@@ -89,14 +88,27 @@ export function Studio() {
           {/* foto: parallax interno, da bianco e nero a colore quando è al centro */}
           <Reveal>
             <div ref={photoRef} className="relative aspect-[5/4] w-full overflow-hidden rounded-[24px] border border-white/10 sm:aspect-[4/5] md:max-w-[30rem]">
-              <motion.img
-                src="/team/1.webp"
-                alt="Il founder di BNS Studio al lavoro"
-                loading="lazy"
-                decoding="async"
-                className="absolute inset-x-0 -top-[10%] h-[120%] w-full object-cover"
-                style={reduce ? { filter: "grayscale(1)" } : { y: photoY, filter: photoFilter }}
-              />
+              {/* due livelli: sotto in bianco e nero (filtro statico), sopra a colori che appare in dissolvenza */}
+              <motion.div className="absolute inset-x-0 -top-[10%] h-[120%] will-change-transform" style={reduce ? undefined : { y: photoY }}>
+                <img
+                  src="/team/1.webp"
+                  alt="Il founder di BNS Studio al lavoro"
+                  loading="lazy"
+                  decoding="async"
+                  className="absolute inset-0 h-full w-full object-cover grayscale"
+                />
+                {!reduce ? (
+                  <motion.img
+                    src="/team/1.webp"
+                    alt=""
+                    aria-hidden
+                    loading="lazy"
+                    decoding="async"
+                    className="absolute inset-0 h-full w-full object-cover"
+                    style={{ opacity: photoColor }}
+                  />
+                ) : null}
+              </motion.div>
               <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent" />
             </div>
           </Reveal>

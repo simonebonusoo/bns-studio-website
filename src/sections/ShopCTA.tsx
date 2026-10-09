@@ -15,9 +15,7 @@ export function ShopCTA() {
   const ref = useRef<HTMLElement>(null)
   const reduce = useReducedMotion()
   const { scrollYProgress } = useScroll({ target: ref, offset: ["start end", "start start"] })
-  const inset = useTransform(scrollYProgress, [0, 1], [20, 0])
-  const radius = useTransform(scrollYProgress, [0, 1], [40, 0])
-  const clipPath = useTransform([inset, radius], ([i, r]: number[]) => `inset(${i}% ${i * 0.7}% ${i}% ${i * 0.7}% round ${r}px)`)
+  const panelScale = useTransform(scrollYProgress, [0, 1], [0.62, 1])
   const contentScale = useTransform(scrollYProgress, [0, 1], [0.72, 1])
   const contentY = useTransform(scrollYProgress, [0, 1], ["12%", "0%"])
 
@@ -44,12 +42,15 @@ export function ShopCTA() {
 
   return (
     <section ref={ref} id="shop" className="relative h-[190svh]">
-      <div className="sticky top-0 h-[100svh]">
+      <div className="sticky top-0 flex h-[100svh] items-center justify-center overflow-hidden text-black">
+        {/* fondo giallo: cresce fino a riempire lo schermo */}
         <motion.div
-          style={{ clipPath }}
-          className="flex h-full w-full items-center justify-center bg-[#e3f503] text-black will-change-[clip-path]"
-        >
-          <motion.div style={{ scale: contentScale, y: contentY }} className="px-4 text-center">
+          aria-hidden
+          style={{ scale: panelScale }}
+          className="absolute inset-0 rounded-[32px] bg-[#e3f503] will-change-transform"
+        />
+        <div className="relative flex h-full w-full items-center justify-center">
+          <motion.div style={{ scale: contentScale, y: contentY }} className="px-4 text-center will-change-transform">
             <div className="text-xs font-semibold uppercase tracking-[0.25em] text-black/55">Shop</div>
             <h2 className="mt-4 text-5xl font-semibold leading-[0.95] tracking-tighter md:text-8xl">
               Scopri il nostro
@@ -75,7 +76,7 @@ export function ShopCTA() {
               </Magnetic>
             </div>
           </motion.div>
-        </motion.div>
+        </div>
       </div>
     </section>
   )

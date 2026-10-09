@@ -106,7 +106,8 @@ body {
 .glass {
   background: rgba(255,255,255,.04);            /* Fondo semi-trasparente */
   border: 1px solid rgba(255,255,255,.08);      /* Bordo sottile */
-  backdrop-filter: blur(10px);                  /* Sfocatura dietro */
+  /* niente backdrop-filter: su sfondo scuro la differenza è invisibile
+     ma il costo durante lo scroll è alto (soprattutto su mobile) */
 }
 
 /* =========================
@@ -151,12 +152,9 @@ section {
   width: 100%;
 }
 
-/* Perf: non dipingere le sezioni fuori dallo schermo.
-   Escludo hero/nav (prima schermata) per evitare flash iniziali. */
-section:not(#top):not(#clienti) {
-  content-visibility: auto;
-  contain-intrinsic-size: auto 600px;
-}
+/* Nota perf: content-visibility rimosso. Con sezioni agganciate (sticky) e
+   animazioni legate allo scroll faceva ricalcolare le altezze durante lo
+   scorrimento (salti e scatti). */
 
 /* Perf: hint di composizione per gli overlay fissi a tutto schermo,
    così restano su un layer GPU e non forzano repaint durante lo scroll. */
@@ -197,4 +195,31 @@ a[href="/#top"] img {
   padding: 0 !important;
   border-radius: 0 !important;
   box-shadow: none !important;
+}
+
+/* Riflesso della navbar: solo transform, così resta sul compositor */
+@keyframes nav-shine {
+  from { transform: translate3d(-40%, 0, 0) rotate(-8deg); }
+  to   { transform: translate3d(220%, 0, 0) rotate(-8deg); }
+}
+.nav-shine {
+  animation: nav-shine 4.6s linear infinite;
+  will-change: transform;
+}
+
+/* Reveal: entra una volta quando appare nello schermo.
+   Solo opacity + transform → animazione sul compositor, zero lavoro JS per frame. */
+.reveal {
+  opacity: 0;
+  transform: translate3d(0, 36px, 0);
+  transition:
+    opacity 0.9s cubic-bezier(0.16, 1, 0.3, 1),
+    transform 0.9s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.reveal.is-shown {
+  opacity: 1;
+  transform: none;
+}
+@media (prefers-reduced-motion: reduce) {
+  .reveal { opacity: 1; transform: none; }
 }

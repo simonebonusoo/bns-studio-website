@@ -83,7 +83,7 @@ function StepCard({
       <motion.div
         ref={ref}
         style={reduce ? undefined : { scale, transformOrigin: "top center" }}
-        className={`relative grid min-h-[56vh] cursor-default overflow-hidden rounded-[32px] border p-7 md:grid-cols-[1fr_1.1fr] md:gap-12 md:p-12 ${
+        className={`relative will-change-transform grid min-h-[56vh] cursor-default overflow-hidden rounded-[32px] border p-7 md:grid-cols-[1fr_1.1fr] md:gap-12 md:p-12 ${
           accent ? "border-transparent bg-[#e3f503] text-black" : "border-white/10 bg-[#111113] text-white"
         }`}
       >

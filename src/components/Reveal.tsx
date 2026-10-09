@@ -1,11 +1,12 @@
-import { useRef, type ReactNode } from "react"
-import { motion, useReducedMotion, useScroll, useTransform } from "framer-motion"
+import { useEffect, useRef, useState, type ReactNode } from "react"
+import { motion, useReducedMotion } from "framer-motion"
 
 /**
- * Reveal legato allo scroll (stile pagine prodotto Apple).
- * L'elemento sale, cresce appena e appare in base alla sua posizione
- * nello schermo: segue il dito/la rotella e torna indietro se risali.
- * `delay` sfasa l'ingresso degli elementi vicini (stagger).
+ * Reveal leggero: l'elemento sale e appare quando entra nello schermo.
+ * Niente JavaScript a ogni frame: un IntersectionObserver aggiunge una
+ * classe e la transizione CSS (solo opacity + transform) gira sul
+ * compositor, quindi resta fluida anche su telefoni lenti.
+ * `delay` sfasa gli elementi vicini (stagger).
  */
 export function Reveal({
   children,
@@ -18,19 +19,35 @@ export function Reveal({
 }) {
   const ref = useRef<HTMLDivElement>(null)
   const reduce = useReducedMotion()
-  const { scrollYProgress } = useScroll({ target: ref, offset: ["start 100%", "start 78%"] })
+  const [shown, setShown] = useState(false)
 
-  const d = Math.min(delay * 2.5, 0.45)
-  const opacity = useTransform(scrollYProgress, [d, 1], [0, 1])
-  const y = useTransform(scrollYProgress, [d, 1], [48, 0])
-  const scale = useTransform(scrollYProgress, [d, 1], [0.97, 1])
+  useEffect(() => {
+    const el = ref.current
+    if (!el || reduce) return
+    const io = new IntersectionObserver(
+      ([e]) => {
+        // visibile, oppure già sopra lo schermo (es. salto con un'ancora): mostra subito
+        if (e.isIntersecting || e.boundingClientRect.bottom < 0) {
+          setShown(true)
+          io.disconnect()
+        }
+      },
+      { rootMargin: "0px 0px -8% 0px" },
+    )
+    io.observe(el)
+    return () => io.disconnect()
+  }, [reduce])
 
   if (reduce) return <div className={className}>{children}</div>
 
   return (
-    <motion.div ref={ref} className={className} style={{ opacity, y, scale, willChange: "opacity, transform" }}>
+    <div
+      ref={ref}
+      className={`reveal ${shown ? "is-shown" : ""} ${className ?? ""}`}
+      style={{ transitionDelay: shown ? `${Math.min(delay, 0.4)}s` : "0s" }}
+    >
       {children}
-    </motion.div>
+    </div>
   )
 }
 

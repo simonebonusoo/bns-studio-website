@@ -94,7 +94,7 @@ function ServiceCard({
 
   return (
     <div className="sticky" style={{ top: `calc(110px + ${idx * step}px)` }}>
-      <motion.div style={reduce ? undefined : { y, rotate }}>
+      <motion.div style={reduce ? undefined : { y, rotate }} className="will-change-transform">
         <motion.button
           ref={ref}
           type="button"
@@ -226,18 +226,10 @@ export function Services() {
   }, [])
 
   // Il pannello sale da sotto e si sovrappone al team.
-  const panelRef = useRef<HTMLElement>(null)
-  const reduce = useReducedMotion()
-  const { scrollYProgress } = useScroll({ target: panelRef, offset: ["start end", "start start"] })
-  const scale = useTransform(scrollYProgress, [0, 1], [0.94, 1])
-  const radius = useTransform(scrollYProgress, [0, 1], [48, 28])
-
   return (
-    <motion.section
-      ref={panelRef}
+    <section
       id="servizi"
-      style={reduce ? undefined : { scale, borderTopLeftRadius: radius, borderTopRightRadius: radius, transformOrigin: "center top" }}
-      className="relative z-10 scroll-mt-24 border-t border-white/10 bg-[#0e0e10] pb-[30vh] pt-12 shadow-[0_-40px_120px_rgba(0,0,0,0.7)] md:pt-16"
+      className="relative z-10 scroll-mt-24 rounded-t-[32px] border-t border-white/10 bg-[#0e0e10] pb-[30vh] pt-12 shadow-[0_-40px_120px_rgba(0,0,0,0.7)] md:rounded-t-[44px] md:pt-16"
     >
       <Container>
         <Reveal>
@@ -274,6 +266,6 @@ export function Services() {
             document.body,
           )
         : null}
-    </motion.section>
+    </section>
   )
 }

@@ -96,20 +96,18 @@ export function Navbar() {
           {/* Liquid glass */}
           <div
             aria-hidden
-            className="pointer-events-none absolute inset-0 z-0 bg-black/40 backdrop-blur-lg backdrop-saturate-125 [transform:translateZ(0)]"
+            className="pointer-events-none absolute inset-0 z-0 overflow-hidden bg-black/80 md:bg-black/55 md:backdrop-blur-md [transform:translateZ(0)]"
           >
             <div className="absolute inset-x-0 bottom-0 h-px bg-white/12" />
             <div className="absolute inset-x-0 top-0 h-px bg-white/8" />
 
-            <motion.div
-              className="absolute -top-10 left-0 h-24 w-[55%] rotate-[-8deg]"
+            {/* riflesso: animazione CSS solo su transform, gira sul compositor senza toccare il JS */}
+            <div
+              className="nav-shine absolute -top-10 left-0 h-24 w-[55%]"
               style={{
                 background:
-                  "linear-gradient(90deg, rgba(227,245,3,0) 0%, rgba(227,245,3,0.10) 50%, rgba(227,245,3,0) 100%)",
-                filter: "blur(10px)",
+                  "linear-gradient(90deg, rgba(227,245,3,0) 0%, rgba(227,245,3,0.08) 50%, rgba(227,245,3,0) 100%)",
               }}
-              animate={{ x: ["-20%", "120%"] }}
-              transition={{ duration: 4.6, ease: "linear", repeat: Infinity }}
             />
           </div>
 

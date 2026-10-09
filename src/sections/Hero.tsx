@@ -20,8 +20,6 @@ export function Hero() {
   const scale = useTransform(scrollYProgress, [0, 1], [1, 0.92])
   const opacity = useTransform(scrollYProgress, [0.15, 0.9], [1, 0])
   const y = useTransform(scrollYProgress, [0, 1], ["0%", "30%"])
-  const blur = useTransform(scrollYProgress, [0.35, 1], [0, 6])
-  const filter = useTransform(blur, (b) => `blur(${b}px)`)
 
   const content = (
     <div className="mx-auto max-w-4xl text-center">
@@ -69,7 +67,7 @@ export function Hero() {
 
   return (
     <section ref={ref} className="relative pt-14 pb-14 md:pt-20 md:pb-20">
-      <motion.div style={{ scale, opacity, y, filter }} className="w-full origin-top will-change-transform">
+      <motion.div style={{ scale, opacity, y }} className="w-full origin-top will-change-transform">
         <Container>{content}</Container>
       </motion.div>
     </section>
